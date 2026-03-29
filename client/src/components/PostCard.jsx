@@ -87,6 +87,9 @@ export default function PostCard({ post }) {
     support: '#10b981'
   };
 
+  // Guard: skip rendering if author data is missing (unpopulated post)
+  if (!post?.author?._id) return null;
+
   return (
     <div className="bg-bg-card/40 backdrop-blur-xl border border-white/10 rounded-[32px] p-6 hover:border-primary/40 hover:shadow-[0_0_30px_rgba(99,102,241,0.15)] hover:bg-white/2 transition-all duration-500">
       {/* Header */}
@@ -402,9 +405,11 @@ export default function PostCard({ post }) {
         }
         .post-images img {
           width: 100%;
-          height: 200px;
-          object-fit: cover;
+          height: auto;
+          max-height: 600px;
+          object-fit: contain;
           border-radius: 8px;
+          background: rgba(0,0,0,0.2);
         }
         .post-stats {
           display: flex;

@@ -267,10 +267,10 @@ export const Holidays: React.FC = () => {
             </Button>
           )}
           <div className="text-right">
-            <div className="bg-purple-50 border border-purple-200 rounded-xl px-6 py-4 flex flex-col justify-center items-center">
+            <div className="bg-purple-50 border border-purple-200 rounded-xl px-3 py-2 flex flex-col justify-center items-center">
               <p className="text-xs font-semibold text-purple-700 uppercase tracking-wide">Total Holidays</p>
-              <p className="text-3xl font-bold text-purple-700 mt-1">{filteredHolidays.length}</p>
-              <p className="text-xs text-purple-600 mt-1">
+              <p className="text-2xl font-bold text-purple-700 ">{filteredHolidays.length}</p>
+              <p className="text-xs text-purple-600">
                 {companyHolidays.length !== filteredHolidays.length
                   ? `of ${companyHolidays.length} total`
                   : 'in system'}

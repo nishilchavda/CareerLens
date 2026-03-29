@@ -28,22 +28,8 @@ exports.getFeed = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
 
-        let query;
-        if (req.user.role === 'hr') {
-            // HR: see all public posts
-            query = { visibility: 'public' };
-        } else {
-            // Jobseeker: see own + connections' public posts
-            const connections = await Connection.find({
-                $or: [{ sender: req.user._id }, { receiver: req.user._id }],
-                status: 'accepted'
-            });
-            const connectionIds = connections.map(c =>
-                c.sender.toString() === req.user._id.toString() ? c.receiver : c.sender
-            );
-            const authorIds = [...connectionIds, req.user._id];
-            query = { author: { $in: authorIds }, visibility: 'public' };
-        }
+        // All roles see all public posts (global feed)
+        const query = { visibility: 'public' };
 
         const posts = await Post.find(query)
             .sort({ createdAt: -1 })
@@ -372,7 +358,10 @@ exports.getUserPosts = async (req, res) => {
         const posts = await Post.find({ author: req.params.userId, visibility: 'public' })
             .sort({ createdAt: -1 })
             .skip(skip).limit(limit)
-            .populate('author', 'name avatar role company headline');
+            .populate('author', 'name avatar role company headline')
+            .populate('comments.author', 'name avatar')
+            .populate('comments.replies.author', 'name avatar')
+            .lean();
 
         const postsWithStatus = posts.map(p => ({
             ...p,

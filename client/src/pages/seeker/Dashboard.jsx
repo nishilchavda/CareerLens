@@ -24,8 +24,8 @@ function ScoreRing({ score }) {
                 </defs>
             </svg>
             <div className="absolute flex flex-col items-center">
-                <div className="text-5xl font-display font-black bg-linear-to-br from-white to-white/40 bg-clip-text text-transparent leading-none">{score}</div>
-                <div className="text-[10px] font-black text-primary-light uppercase tracking-[0.3em] mt-1">Global Rank</div>
+                <div className="text-4xl font-display font-black bg-linear-to-br from-white to-white/40 bg-clip-text text-transparent leading-none">{score}</div>
+                <div className="text-[8px] font-black text-primary-light uppercase tracking-[0.3em] mt-1">Global Rank</div>
             </div>
         </div>
     );
@@ -90,10 +90,6 @@ export default function Dashboard() {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <Link to="/notifications" className="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center text-text-muted hover:text-primary hover:border-primary/40 transition-all relative">
-                            <Bell size={20} />
-                            <div className="absolute top-3 right-3 w-2 h-2 bg-primary rounded-full animate-pulse" />
-                        </Link>
                         <Link to="/profile" className="px-6 py-3.5 bg-white/5 backdrop-blur-md border border-white/10 text-white font-black rounded-2xl hover:bg-white/10 transition-all flex items-center gap-3 group text-sm">
                             <FileText size={18} className="text-primary-light group-hover:rotate-12 transition-transform" /> 
                             Refine Profile

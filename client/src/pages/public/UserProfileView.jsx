@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
+    getMyProfileAPI,
     getProfileByUserIdAPI,
     getUserPostsAPI,
     getConnectionStatusAPI,
@@ -11,7 +12,6 @@ import {
     removeConnectionAPI,
     followUserAPI,
     unfollowUserAPI,
-    sendMessageAPI
 } from '../../api/axiosClient';
 import { getUserPosts } from '../../app/slices/postSlice';
 import { 
@@ -39,13 +39,29 @@ export default function UserProfileView() {
             if (!targetId) return;
             try {
                 setLoading(true);
-                const [profileRes] = await Promise.all([
-                    getProfileByUserIdAPI(targetId),
-                    dispatch(getUserPosts({ userId: targetId, page: 1, limit: 10 }))
-                ]);
-                setProfile(profileRes.data);
+                const isOwnProfile = !userId; // /me route has no userId param
 
-                if (targetId !== currentUser?._id) {
+                if (isOwnProfile) {
+                    // Use /profile/me which auto-creates profile if missing
+                    const [profileRes] = await Promise.all([
+                        getMyProfileAPI(),
+                        dispatch(getUserPosts({ userId: targetId, page: 1, limit: 10 }))
+                    ]);
+                    // getMyProfileAPI returns lean profile without populated user
+                    // Merge currentUser data in as the user field
+                    setProfile({
+                        ...profileRes.data,
+                        user: currentUser,
+                        followersCount: 0,
+                        followingCount: 0,
+                    });
+                } else {
+                    const [profileRes] = await Promise.all([
+                        getProfileByUserIdAPI(targetId),
+                        dispatch(getUserPosts({ userId: targetId, page: 1, limit: 10 }))
+                    ]);
+                    setProfile(profileRes.data);
+
                     const st = await getConnectionStatusAPI(targetId);
                     setStatus(st.data);
                 }
@@ -153,22 +169,12 @@ export default function UserProfileView() {
         }
     };
 
-    const handleMessage = async () => {
+    const handleMessage = () => {
         if (targetId === currentUser?._id) return;
-        const text = window.prompt(`Message to ${owner?.name}:`);
-        if (!text) return;
-        setActionLoading(true);
-        try {
-            await sendMessageAPI(targetId, text);
-            toast.success('Message sent');
-            window.dispatchEvent(new CustomEvent('toggle-chat', { 
-                detail: { userId: owner._id, user: owner } 
-            }));
-        } catch (err) {
-            toast.error('Failed to send message');
-        } finally {
-            setActionLoading(false);
-        }
+        // Open the ChatWidget directly on this user's conversation
+        window.dispatchEvent(new CustomEvent('toggle-chat', {
+            detail: { userId: owner._id, user: owner }
+        }));
     };
 
     const handleFollow = async () => {
