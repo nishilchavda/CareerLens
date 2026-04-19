@@ -10,11 +10,12 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // List of models to try in order of preference (latest stable first)
 const MODEL_PRIORITY = [
-  'gemini-1.5-flash-latest',
+  'gemini-3-flash-preview',
+  'gemini-3-flash',
+  'gemini-2.0-flash',
+  'gemini-2.0-pro',
   'gemini-1.5-flash',
-  'gemini-1.5-pro-latest',
-  'gemini-1.5-pro',
-  'gemini-1.0-pro'
+  'gemini-1.5-pro'
 ];
 
 let workingModel = null;
@@ -45,11 +46,15 @@ const getWorkingModel = async () => {
     } catch (err) {
       // Log the detailed error for debugging
       console.warn(`⚠️ Model ${modelName} failed:`, err.message);
-      // After the first failure, do not try any other models
+      
+      // Only stop trying models if we hit a quota limit
       if (err.message?.includes('429') || err.status === 429) {
         console.log('⛔ Quota exceeded – will not retry other models until reset.');
+        break;
       }
-      break;
+      
+      // For any other error (like 404), the loop continues to the next model
+      console.log(`🔄 Attempting fallback for ${modelName}...`);
     }
   }
   throw new Error('No working Gemini model found – falling back to heuristic matching');
